@@ -76,15 +76,21 @@ const AuthForm = ({ type }: { type: FormType }) => {
         );
 
         const idToken = await userCredential.user.getIdToken();
-        if (!idToken) {
-          toast.error("Sign in Failed. Please try again.");
+
+        const res = await fetch("/api/set-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken }),
+        });
+
+        const result = await res.json();
+
+        if (!result.success) {
+          toast.error("Session creation failed.");
           return;
         }
-
-        await signIn({
-          email,
-          idToken,
-        });
 
         toast.success("Signed in successfully.");
         router.push("/");
