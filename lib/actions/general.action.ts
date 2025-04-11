@@ -94,6 +94,8 @@ export async function getLatestInterviews(
   params: GetLatestInterviewsParams
 ): Promise<Interview[] | null> {
   const { userId, limit = 20 } = params;
+  
+  if (!userId) return [];
 
   const interviews = await db
     .collection("interviews")
