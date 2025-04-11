@@ -13,6 +13,31 @@ import {
 async function Home() {
   const user = await getCurrentUser();
 
+  if (!user) {
+    return (
+      <section className="card-cta">
+        <div className="flex flex-col gap-6 max-w-lg">
+          <h2>Welcome to InterviewPrepAI!</h2>
+          <h4>Get Interview-Ready with AI-Powered Practice & Feedback.</h4>
+          <p className="text-lg">Sign in to start practicing interviews.</p>
+          <Button asChild className="btn-primary max-sm:w-full">
+            <Link href="/sign-in">Get Started </Link>
+          </Button>
+        </div>
+
+        <div className="flex flex-col gap-6 max-w-m">
+          <Image
+            src="/man-with-tab.svg"
+            alt="man-with-tab"
+            width={320}
+            height={320}
+            className="max-sm:hidden"
+          />
+        </div>
+      </section>
+    );
+  }
+
   const [userInterviews, allInterview] = await Promise.all([
     getInterviewsByUserId(user?.id!),
     getLatestInterviews({ userId: user?.id! }),
@@ -35,13 +60,15 @@ async function Home() {
           </Button>
         </div>
 
-        <Image
-          src="/robot.png"
-          alt="robo-dude"
-          width={400}
-          height={400}
-          className="max-sm:hidden"
-        />
+        <div className="flex flex-col gap-6 max-w-lg">
+          <Image
+            src="/robot.png"
+            alt="robo-dude"
+            width={400}
+            height={400}
+            className="max-sm:hidden"
+          />
+        </div>
       </section>
 
       <section className="flex flex-col gap-6 mt-8">
