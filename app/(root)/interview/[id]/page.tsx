@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/general.action";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import DisplayTechIcons from "@/components/DisplayTechIcons";
+import Protected from "@/components/ProtectionProvider";
 
 const InterviewDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
@@ -25,7 +26,7 @@ const InterviewDetails = async ({ params }: RouteParams) => {
   });
 
   return (
-    <>
+    <Protected>
       <div className="flex flex-row gap-4 justify-between">
         <div className="flex flex-row gap-4 items-center max-sm:flex-col">
           <div className="flex flex-row gap-4 items-center">
@@ -55,7 +56,7 @@ const InterviewDetails = async ({ params }: RouteParams) => {
         questions={interview.questions}
         feedbackId={feedback?.id}
       />
-    </>
+    </Protected>
   );
 };
 
