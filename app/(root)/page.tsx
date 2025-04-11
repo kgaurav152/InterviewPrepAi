@@ -90,5 +90,4 @@ async function Home() {
     </>
   );
 }
-
 export default Home;

@@ -22,6 +22,7 @@ export async function setSessionCookie(idToken: string) {
     secure: process.env.NODE_ENV === "production",
     path: "/",
     sameSite: "lax",
+    domain: process.env.NODE_ENV === "production" ? ".interviewprepai.com" : undefined,
   });
 }
 
@@ -78,9 +79,25 @@ export async function signIn(params: SignInParams) {
         message: "User does not exist. Create an account.",
       };
 
+    // Check if user exists in Firestore
+    const userDoc = await db.collection("users").doc(userRecord.uid).get();
+    if (!userDoc.exists) {
+      // Create user document if it doesn't exist
+      await db.collection("users").doc(userRecord.uid).set({
+        name: userRecord.displayName || "User",
+        email: userRecord.email,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     await setSessionCookie(idToken);
+    
+    return {
+      success: true,
+      message: "Signed in successfully.",
+    };
   } catch (error: any) {
-    console.log("");
+    console.error("Sign in error:", error);
 
     return {
       success: false,
@@ -101,26 +118,31 @@ export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
 
   const sessionCookie = cookieStore.get("session")?.value;
-  if (!sessionCookie) return null;
+  if (!sessionCookie) {
+    console.log("No session cookie found");
+    return null;
+  }
 
   try {
     const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    console.log("Session verified for user:", decodedClaims.uid);
 
     // get user info from db
     const userRecord = await db
       .collection("users")
       .doc(decodedClaims.uid)
       .get();
-    if (!userRecord.exists) return null;
+    if (!userRecord.exists) {
+      console.log("User not found in database");
+      return null;
+    }
 
     return {
       ...userRecord.data(),
       id: userRecord.id,
     } as User;
   } catch (error) {
-    console.log(error);
-
-    // Invalid or expired session
+    console.error("Error verifying session:", error);
     return null;
   }
 }
